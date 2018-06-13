@@ -29,6 +29,7 @@ feedback =
     all_uppercase_doesnt_help: 'All-uppercase is almost as easy to guess as all-lowercase'
     reverse_doesnt_help: 'Reversed words aren\'t much harder to guess'
     substitution_doesnt_help: 'Predictable substitutions like \'@\' instead of \'a\' don\'t help very much'
+    user_dictionary: 'This password is on the blacklist'
 
   get_feedback: (score, sequence, custom_messages) ->
     @custom_messages = custom_messages
@@ -87,7 +88,9 @@ feedback =
         suggestions: ['avoid_associated_dates_and_years']
 
   get_dictionary_match_feedback: (match, is_sole_match) ->
-    warning = if match.dictionary_name == 'passwords'
+    warning = if match.dictionary_name == 'user_inputs'
+      'user_dictionary'
+    else if match.dictionary_name == 'passwords'
       if is_sole_match and not match.l33t and not match.reversed
         if match.rank <= 10
           'top10_common_password'
