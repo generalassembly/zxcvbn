@@ -1,0 +1,57 @@
+name: zxcvbn Auto Prerelease
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Build + Publish
+    environment: Release
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 12.x
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@generalassembly'
+
+      - uses: paulhatch/semantic-version@v4.0.2
+        id: version
+        with:
+          tag_prefix: "v"
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          format: "${major}.${minor}.${patch}"
+          bump_each_commit: true
+
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      - name: Build package
+        run: |
+          yarn build
+
+      - name: Set version
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          npm version ${{ steps.version.outputs.version }}
+
+      - name: Publish to GPR
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Tag new version
+        run: git push --tags
