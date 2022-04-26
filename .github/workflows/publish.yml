@@ -33,6 +33,15 @@ jobs:
         run: |
           yarn build
 
+      - uses: paulhatch/semantic-version@v4.0.2
+        id: version
+        with:
+          tag_prefix: "v"
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          format: "${major}.${minor}.${patch}"
+          bump_each_commit: true
+
       - name: Set version
         run: |
           git config user.name github-actions
